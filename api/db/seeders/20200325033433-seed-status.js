@@ -2,48 +2,29 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert('ingredient', [
+    return queryInterface.bulkInsert('status', [
       {
-        post_id: 1,
-        ingredient_name: 'Potato',
-        value: 6,
-        unit_id: 3,
+        status_name: 'Not started',
         created_at: new Date(),
         updated_at: new Date()
       },
       {
-        post_id: 1,
-        ingredient_name: 'Onion',
-        value: 1,
-        unit_id: 3,
+        status_name: 'In progress',
         created_at: new Date(),
         updated_at: new Date()
       },
       {
-        post_id: 1,
-        ingredient_name: 'Minced meat',
-        value: 100,
-        unit_id: 1,
+        status_name: 'Completed',
         created_at: new Date(),
         updated_at: new Date()
       },
       {
-        post_id: 1,
-        ingredient_name: 'Sukiyaki sauce',
-        value: 75,
-        unit_id: 2,
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        post_id: 1,
-        ingredient_name: 'Bread crumbs',
-        value: 20,
-        unit_id: 1,
+        status_name: 'Will not resolve',
         created_at: new Date(),
         updated_at: new Date()
       },
     ], {});
+
   },
 
   down: (queryInterface, Sequelize) => {

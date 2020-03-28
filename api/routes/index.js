@@ -12,25 +12,21 @@ const Router = [
     handler: require('./PostRoutes'),
   },
   {
-    path: '/comments',
-    handler: require('./CommentRoutes'),
-  },
-  {
-    path: '/likes',
-    handler: require('./LikeRoutes'),
-  },
-  {
-    path: '/follows',
-    handler: require('./FollowRoutes'),
-  },
-  {
     path: '/images',
     handler: require('./ImageRoutes'),
   },
   {
     path: '/ingredients',
     handler: require('./IngredientRoutes'),
-  }
+  },
+  {
+    path: '/tasks',
+    handler: require('./TaskRoutes'),
+  },
+  {
+    path: '/roles',
+    handler: require('./RoleRoutes'),
+  },
 ];
 
 export default Router;

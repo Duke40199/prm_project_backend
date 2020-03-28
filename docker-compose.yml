@@ -1,18 +1,18 @@
 version: '3'
 
 services:
-  facefood-postgres-compose:
+  prm-project-postgres-compose:
     image: postgres
     environment: 
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: facefood-database
+      POSTGRES_DB: prm-project-database
     ports:
       - '15432:5432'
     volumes:
       - database-data:/var/lib/postgresql/data/ # persist data even if container shuts down
 
-  facefood-pgadmin-compose:
+  prm-project-pgadmin-compose:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: 'admin@admin.com'
@@ -20,7 +20,7 @@ services:
     ports:
       - '16543:80'
     depends_on:
-      - facefood-postgres-compose
+      - prm-project-postgres-compose
 
 volumes:
   database-data: # named volumes can be managed easier using docker-compose

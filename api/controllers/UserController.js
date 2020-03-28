@@ -47,7 +47,7 @@ module.exports = {
         if (!errors.isEmpty()) {
           throw new DefaultError(status.BAD_REQUEST, 'Please enter valid values!', errors.array());
         }
-        const {email, username, password, confirmPassword} = req.body;
+        const {email, username, fullname, password, confirmPassword, roleId, phoneNumber} = req.body;
         const duplicateUser = await models.User.findOne({
           where: {username},
           attributes: ['username']
@@ -60,8 +60,10 @@ module.exports = {
           await models.User.create({
             email,
             username,
+            fullname,
+            roleId,
+            phoneNumber,
             password,
-            roleId: 2,
           });
           res.status(status.CREATED).send({
             status: true,
@@ -172,41 +174,14 @@ module.exports = {
           distinct: true,
         });
         const finalUserResult = await Promise.all(users.map(async user => {
-          var likeCount = 0, commentCount = 0;
-          const foundUserID = user.dataValues.id;
+          const foundRoleID = user.dataValues.roleId;
           //Additional data
-          const totalPosts = await models.Post
-            .findAndCountAll({
-              where: {user_id: foundUserID}
+          const roleObject = await models.Role
+            .findOne({
+              where: {id: foundRoleID}
             });
-          await Promise.all(totalPosts.rows.map(async post => {
-            const foundPostID = post.dataValues.id;
-            const totalLikes = await models.Like
-              .findAndCountAll({
-                where: {post_id: foundPostID, is_liked: true}
-              });
-            const totalComments = await models.Comment
-              .findAndCountAll({
-                where: {post_id: foundPostID, is_deleted: false}
-              });
-            likeCount += totalLikes.count;
-            commentCount += totalComments.count;
-          }));
-          const totalFollowers = await models.Follow
-            .findAndCountAll({
-              where: {following_id: foundUserID, is_following: true}
-            });
-          const totalFollowings = await models.Follow
-            .findAndCountAll({
-              where: {user_id: foundUserID, is_following: true}
-            });
-
-          //count additional data objects
-          const postCount = totalPosts.count;
-          const followerCount = totalFollowers.count;
-          const followingCount = totalFollowings.count;
-
-          return {...user.dataValues, postCount, likeCount, commentCount, followerCount, followingCount}
+          const role = roleObject.dataValues.roleName;
+          return {...user.dataValues, role}
         }));
         res.status(status.OK)
           .send({
