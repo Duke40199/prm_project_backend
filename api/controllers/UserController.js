@@ -47,7 +47,7 @@ module.exports = {
         if (!errors.isEmpty()) {
           throw new DefaultError(status.BAD_REQUEST, 'Please enter valid values!', errors.array());
         }
-        const {email, username, fullname, password, confirmPassword, roleId, phoneNumber} = req.body;
+        const {email, username, fullname, password, confirmPassword, roleId, phoneNumber,avatarUrl} = req.body;
         const duplicateUser = await models.User.findOne({
           where: {username},
           attributes: ['username']
@@ -64,6 +64,7 @@ module.exports = {
             roleId,
             phoneNumber,
             password,
+            avatarUrl
           });
           res.status(status.CREATED).send({
             status: true,

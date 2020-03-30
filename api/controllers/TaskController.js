@@ -7,7 +7,31 @@ const url = require('url');
 module.exports = {
 
   create: {
-    post(req, res) {
+    async post(req, res) {
+      //creator
+      const creatorUsername = req.body.creatorUsername;
+      console.log("Creator Username:" + creatorUsername);
+      const creator = await models.User.findOne({
+        attributes: ['id'],
+        where: {
+          username: {
+            [Op.eq]: creatorUsername
+          },
+        }
+      });
+      req.body.createdBy = creator.dataValues.id;
+      //assignee
+      const assigneeUsername = req.body.assigneeUsername;
+      console.log("Assignee Username:" + assigneeUsername);
+      const assignee = await models.User.findOne({
+        attributes: ['id'],
+        where: {
+          username: {
+            [Op.eq]: assigneeUsername
+          },
+        }
+      });
+      req.body.assignee = assignee.dataValues.id;
       return models.Task
         .create(req.body)
         .then(function (post, err) {

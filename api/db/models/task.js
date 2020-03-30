@@ -26,6 +26,14 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: false,
       field: 'status_id'
     },
+    startDate: {
+      type: DataTypes.STRING,
+      field: 'start_date'
+    },
+    endDate: {
+      type: DataTypes.STRING,
+      field: 'end_date'
+    },
     createdAt: {
       type: DataTypes.DATE,
       field: 'created_at'
