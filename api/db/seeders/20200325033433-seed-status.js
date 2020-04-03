@@ -23,6 +23,11 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date()
       },
+      {
+        status_name: 'Reviewed',
+        created_at: new Date(),
+        updated_at: new Date()
+      },
     ], {});
 
   },

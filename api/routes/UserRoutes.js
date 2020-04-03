@@ -8,8 +8,7 @@
 let express = require('express');
 let Controller = require('../controllers/UserController');
 let router = express.Router();
-let passport = require('passport');
-let {isAdmin} = require('../middlewares/authorization');
+
 router.get('/', Controller.view.get);
 router.get('/:username', Controller.view_one.get);
 router.put('/:username/avatar',Controller.update_avatar_url.put);

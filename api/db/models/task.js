@@ -26,6 +26,10 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: false,
       field: 'status_id'
     },
+    imageUrl: {
+      type: DataTypes.STRING,
+      field: 'image_url'
+    },
     startDate: {
       type: DataTypes.STRING,
       field: 'start_date'

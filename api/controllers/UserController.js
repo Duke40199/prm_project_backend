@@ -217,58 +217,10 @@ module.exports = {
             }
           },
         );
-        var totalLikes = 0, totalComments = 0;
-        const foundUserID = user.dataValues.id;
-        //Additional data
-        const totalPosts = await models.Post
-          .findAndCountAll({
-            attributes: {exclude: ['category_id', 'user_id', 'userId']},
-            where: {user_id: foundUserID}
-          });
-        const posts = await Promise.all(totalPosts.rows.map(async post => {
-            const foundPostID = post.dataValues.id;
-            const likes = await models.Like
-              .findAndCountAll({
-                where: {id: foundPostID, is_liked: true}
-              });
-            const likeCount = likes.count;
-            const comments = await models.Comment
-              .findAndCountAll({
-                where: {id: foundPostID, is_deleted: false}
-              });
-            const commentCount = comments.count;
-            totalLikes += likeCount;
-            totalComments += commentCount;
-            return {...post.dataValues, likeCount, commentCount}
-          }
-          )
-        );
-        const totalFollowers = await models.Follow
-          .findAndCountAll({
-            where: {following_id: foundUserID, is_following: true}
-          });
-        const totalFollowings = await models.Follow
-          .findAndCountAll({
-            where: {user_id: foundUserID, is_following: true}
-          });
-
-        //count additional data objects
-        const postCount = totalPosts.count;
-        const followerCount = totalFollowers.count;
-        const followingCount = totalFollowings.count;
-        const finalUserResult = {
-          ...user.dataValues,
-          postCount,
-          posts,
-          totalLikes,
-          totalComments,
-          followerCount,
-          followingCount
-        };
         res.status(status.OK)
           .send({
             status: true,
-            message: finalUserResult,
+            message: user,
           });
       } catch
         (error) {

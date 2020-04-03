@@ -8,16 +8,8 @@ const Router = [
     handler: require('./UserRoutes'),
   },
   {
-    path: '/posts',
-    handler: require('./PostRoutes'),
-  },
-  {
     path: '/images',
     handler: require('./ImageRoutes'),
-  },
-  {
-    path: '/ingredients',
-    handler: require('./IngredientRoutes'),
   },
   {
     path: '/tasks',
@@ -26,6 +18,14 @@ const Router = [
   {
     path: '/roles',
     handler: require('./RoleRoutes'),
+  },
+  {
+    path: '/status',
+    handler: require('./StatusRoutes'),
+  },
+  {
+    path: '/ratings',
+    handler: require('./RatingRoutes'),
   },
 ];
 

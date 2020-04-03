@@ -2,48 +2,127 @@
 const models = require('../db/models/index');
 const status = require('http-status');
 const {Op} = require("sequelize");
-const Sequelize = require("sequelize");
 const url = require('url');
 module.exports = {
 
   create: {
     async post(req, res) {
       //creator
-      const creatorUsername = req.body.creatorUsername;
-      console.log("Creator Username:" + creatorUsername);
-      const creator = await models.User.findOne({
-        attributes: ['id'],
-        where: {
-          username: {
-            [Op.eq]: creatorUsername
-          },
-        }
-      });
-      req.body.createdBy = creator.dataValues.id;
-      //assignee
-      const assigneeUsername = req.body.assigneeUsername;
-      console.log("Assignee Username:" + assigneeUsername);
-      const assignee = await models.User.findOne({
-        attributes: ['id'],
-        where: {
-          username: {
-            [Op.eq]: assigneeUsername
-          },
-        }
-      });
-      req.body.assignee = assignee.dataValues.id;
-      return models.Task
-        .create(req.body)
-        .then(function (post, err) {
-          if (post) {
-            res.status(status.OK)
-              .send({
-                success: true,
-                message: "OK",
-                error: err
-              });
+      try {
+        const creatorUsername = req.body.creatorUsername;
+        console.log("Creator Username:" + creatorUsername);
+        const creator = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: creatorUsername
+            },
           }
         });
+        req.body.createdBy = creator.dataValues.id;
+        //assignee
+        const assigneeUsername = req.body.assigneeUsername;
+        console.log("Assignee Username:" + assigneeUsername);
+        const assignee = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: assigneeUsername
+            },
+          }
+        });
+        req.body.assignee = assignee.dataValues.id;
+        //status
+        const statusName = req.body.statusName;
+        console.log("StatusName: " + statusName);
+        const status = await models.Status.findOne({
+          attributes: ['id'],
+          where: {
+            status_name: {
+              [Op.eq]: statusName
+            },
+          }
+        });
+        req.body.status_id = status.dataValues.id;
+        console.log(status.dataValues.id);
+        return models.Task
+          .create(req.body)
+        res.status(status.OK)
+          .send({
+            success: true,
+            message: "OK",
+          });
+      } catch (error) {
+        res.status(status.BAD_REQUEST)
+          .send({
+            success: false,
+            message: error,
+          });
+      }
+    },
+  },
+
+  update: {
+    async put(req, res) {
+      //creator
+      try {
+        const creatorUsername = req.body.creatorUsername;
+        console.log("Creator Username:" + creatorUsername);
+        const creator = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: creatorUsername
+            },
+          }
+        });
+        req.body.createdBy = creator.dataValues.id;
+        //assignee
+        const assigneeUsername = req.body.assigneeUsername;
+        console.log("Assignee Username:" + assigneeUsername);
+        const assignee = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: assigneeUsername
+            },
+          }
+        });
+        req.body.assignee = assignee.dataValues.id;
+        //status
+        const statusName = req.body.statusName;
+        console.log("StatusName: " + statusName);
+        const status = await models.Status.findOne({
+          attributes: ['id'],
+          where: {
+            status_name: {
+              [Op.eq]: statusName
+            },
+          }
+        });
+        req.body.status_id = status.dataValues.id;
+        console.log(status.dataValues.id);
+        console.log('TaskName:' + req.body.taskName);
+        console.log('taskID'+ req.body.id);
+        const result = await models.Task.update(req.body, {
+          where: {
+            id: {
+              [Op.eq]: req.body.id
+            }
+          }
+        })
+        res.status(status.OK)
+          .send({
+            success: true,
+            message: result,
+          });
+      } catch (error) {
+        res.status(status.BAD_REQUEST)
+          .send({
+            success: false,
+            message: error,
+          });
+      }
     },
   },
 
@@ -51,42 +130,53 @@ module.exports = {
     async get(req, res, next) {
       try {
         const queryData = url.parse(req.url, true).query;
-        var taskName = queryData.taskName;
         var order = queryData.order;
-        var status = queryData.status;
-        var statusID;
+        var creatorUsername = queryData.creator;
+        var assigneeUsername = queryData.assignee;
         var whereCondition;
-        if (taskName == undefined) {
-          taskName = '';
-        }
         if (order == undefined) {
-          order = 'created_at,asc'
+          order = 'created_at,desc'
+        }
+        if (creatorUsername == undefined) {
+          creatorUsername = '';
+        }
+        if (assigneeUsername == undefined) {
+          assigneeUsername = '';
         }
         const orderOptions = order.split(",");
 
-        if (status != undefined) {
-          const requestStatus = await models.Status.findOne({
-            attributes: ['id'],
-            where: {
-              status_name: {
-                [Op.iLike]: '%' + status + '%'
-              },
+        const creator = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: creatorUsername,
             }
-          });
-          statusID = requestStatus?.dataValues.id;
-        }
-        if (statusID != null) {
-          whereCondition = {
-            task_name: {
-              [Op.iLike]: '%' + taskName + '%'
-            },
-            status_id: statusID,
           }
-        } else {
+        });
+        var creatorId = '';
+        if (creator != null) {
+          creatorId = creator.dataValues.id;
           whereCondition = {
-            task_name: {
-              [Op.iLike]: '%' + taskName + '%'
-            },
+            created_by: {
+              [Op.eq]: creatorId
+            }
+          }
+        }
+        const assignee = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: assigneeUsername
+            }
+          }
+        });
+        var assigneeId = '';
+        if (assignee != null) {
+          assigneeId = assignee.dataValues.id;
+          whereCondition = {
+            assignee: {
+              [Op.eq]: assigneeId
+            }
           }
         }
         const tasks = await models.Task
@@ -124,15 +214,98 @@ module.exports = {
           const createdByUsername = createdBy.dataValues.username;
           return {...task.dataValues, assigneeUsername, createdByUsername, statusName}
         }));
-        res
+        res.status(status.OK)
           .send({
             success: true,
-            message: finalResult
+            message: finalResult,
           });
-      } catch (error) {
-        next(error)
+      } catch
+        (error) {
+        res.status(status.BAD_REQUEST)
+          .send({
+            success: true,
+            message: error,
+          });
       }
-    },
+    }
+  },
+  view_review_tasks: {
+    async get(req, res, next) {
+      try {
+        const queryData = url.parse(req.url, true).query;
+        var order = queryData.order;
+        var createdByUsername = queryData.creator;
+        var statusName = queryData.statusName;
+        if (order == undefined) {
+          order = 'created_at,desc'
+        }
+        if (createdByUsername == undefined) {
+          createdByUsername = '';
+        }
+        const orderOptions = order.split(",");
+
+        const creator = await models.User.findOne({
+          attributes: ['id'],
+          where: {
+            username: {
+              [Op.eq]: createdByUsername,
+            }
+          }
+        });
+        var creatorId = '';
+        if (creator != null) {
+          creatorId = creator.dataValues.id;
+        }
+
+        const statusObject = await models.Status.findOne({
+          attributes: ['id'],
+          where: {
+            status_name: {
+              [Op.eq]: statusName,
+            }
+          }
+        });
+        const statusId = statusObject.dataValues.id
+        const tasks = await models.Task
+          .findAll({
+            where: [{
+              created_by: {
+                [Op.eq]: creatorId,
+              }
+            }, {
+              status_id: {
+                [Op.eq]: statusId
+              }
+            }],
+            order: [
+              [orderOptions[0], orderOptions[1]],
+            ],
+          });
+
+        const finalResult = await Promise.all(tasks.map(async task => {
+          const foundAssignee = task.dataValues.assignee;
+          const assignee = await models.User
+            .findOne({
+              attributes: ['username'],
+              where: {id: foundAssignee}
+            });
+          const assigneeUsername = assignee.dataValues.username;
+          return {...task.dataValues, assigneeUsername, createdByUsername, statusName}
+        }));
+        res.status(status.OK)
+          .send({
+            success: true,
+            message: finalResult,
+          });
+      } catch
+        (error) {
+        res.status(status.BAD_REQUEST)
+          .send({
+            success: true,
+            message: error,
+          });
+      }
+    }
   },
 
   view_post_details: {
@@ -232,111 +405,6 @@ module.exports = {
             message: result
           });
       } catch (error) {
-        next(error)
-      }
-    }
-  },
-  search: {
-    async get(req, res, next) {
-      try {
-        const queryData = url.parse(req.url, true).query;
-        const type = queryData.type;
-        const query = queryData.query;
-        var foundPosts;
-        if (query == '') {
-          res.status(status.OK)
-            .send({
-              success: false,
-              message: "Input search query!"
-            });
-        } else {
-          switch (type) {
-            //Find by postName
-            case "name": {
-              foundPosts = await models.Post.findAll({
-                where: {
-                  post_name: {
-                    [Op.iLike]: '%' + query + '%'
-                  },
-                }
-              });
-              break;
-            }
-            //Find by categoryName
-            case "category": {
-              const category = await models.Category.findAll({
-                attributes: ['id'],
-                where: {
-                  category_name: {
-                    [Op.iLike]: '%' + query + '%'
-                  }
-                },
-                raw: true,
-              });
-              const categoryIds = category.map(category => category.id);
-              foundPosts = await models.Post.findAll({
-                where: {category_id: categoryIds}
-              });
-              break;
-            }
-            //Find by ingredientName
-            case "ingredient": {
-              const ingredients = await models.Ingredient.findAll({
-                attributes: ['post_id'],
-                where: {
-                  ingredient_name: {
-                    [Op.iLike]: '%' + query + '%'
-                  }
-                },
-                raw: true,
-              });
-              const postIds = ingredients.map(ingredient => ingredient.post_id);
-              foundPosts = await models.Post.findAll({
-                where: {id: postIds}
-              });
-              break;
-            }
-            default: {
-              res.status(status.OK)
-                .send({
-                  success: false,
-                  message: "Invalid search type!"
-                });
-            }
-          }
-          const finalResult = await Promise.all(foundPosts.map(async post => {
-            const foundPostID = post.dataValues.id;
-            const foundCategoryID = post.dataValues.categoryId;
-            const totalLikes = await models.Like
-              .findAndCountAll({
-                where: {post_id: foundPostID, is_liked: true}
-              });
-            const totalComments = await models.Comment
-              .findAndCountAll({
-                where: {post_id: foundPostID, is_deleted: false}
-              });
-            var category;
-            var categoryName;
-            if (foundCategoryID != undefined) {
-              category = await models.Category
-                .findOne({
-                  attributes: ['category_name'],
-                  where: {id: foundCategoryID}
-                });
-              categoryName = category.dataValues.category_name;
-            }
-            const likeCount = totalLikes.count;
-            const commentCount = totalComments.count;
-            return {...post.dataValues, categoryName, likeCount, commentCount}
-          }));
-          return res.status(status.OK)
-            .send({
-              success: true,
-              message: finalResult
-            });
-        }
-      } catch
-        (error) {
         next(error)
       }
     }
